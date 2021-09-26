@@ -10,7 +10,7 @@ class ShutdownCommand implements ICommand {
   List<String> aliases = [];
 
   @override
-  void onExecute(Message message, String command, Nyxx bot) async {
+  void onExecute(Message message, List<String> args, Nyxx bot) async {
     if (message.author.id == config.owner) {
       await message.reply(content: '😢 Desligando...');
       bot.setPresence(

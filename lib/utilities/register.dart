@@ -20,8 +20,11 @@ void registerCommands(Nyxx bot) {
             .reply(content: 'Nenhum comando encontrado com o nome **$cmd**.')
             .deleteAfter();
       } else {
-        command.first.onExecute(event.message,
-            event.message.content.replaceAll(cmdPrefix, ''), bot);
+        command.first.onExecute(
+          event.message,
+          event.message.content.replaceAll(cmdPrefix, '').trim().split(' '),
+          bot,
+        );
       }
     }
   });
