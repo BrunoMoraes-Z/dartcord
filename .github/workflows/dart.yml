@@ -61,6 +61,5 @@ jobs:
           path: |
             bin/*.exe
             application.yml
-            Lavalink.jar
           # The desired behavior if no files are found using the provided path.
               
