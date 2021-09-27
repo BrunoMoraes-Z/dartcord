@@ -54,6 +54,9 @@ jobs:
           # Artifact name
           name: discord-bot-${{ matrix.os }}
           # A file, directory or wildcard pattern that describes what to upload
-          path: bin/*.exe
+          path: |
+            bin/*.exe
+            application.yml
+            Lavalink.jar
           # The desired behavior if no files are found using the provided path.
               

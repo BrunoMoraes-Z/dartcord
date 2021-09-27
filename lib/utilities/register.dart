@@ -1,8 +1,12 @@
 import 'package:bot/contants.dart';
+import 'package:bot/utilities/lavalink/player.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:nyxx_lavalink/lavalink.dart';
 
 import './extensions/extensions.dart';
 import '../commands/commands.dart';
+
+late Cluster? cluster;
 
 void registerCommands(Nyxx bot) {
   bot.onMessageReceived.listen((event) async {
@@ -28,4 +32,36 @@ void registerCommands(Nyxx bot) {
       }
     }
   });
+}
+
+Future<void> registerCluster(NodeOptions options) async {
+  cluster = Cluster(bot, config.botId);
+  if (cluster != null) {
+    await cluster!.addNode(options);
+  }
+
+  player = Player();
+
+  if (cluster != null) {
+    cluster!.onTrackStart.listen((event) {
+      var np = event.node.players.values.first.nowPlaying;
+      if (np != null) {
+        bot.setPresence(
+          PresenceBuilder.of(
+            status: UserStatus.online,
+            activity: ActivityBuilder.listening(
+              np.track.info!.title,
+            ),
+          ),
+        );
+      }
+    });
+    cluster!.onTrackEnd.listen((event) {
+      bot.setPresence(
+        PresenceBuilder.of(
+          status: UserStatus.online,
+        ),
+      );
+    });
+  }
 }

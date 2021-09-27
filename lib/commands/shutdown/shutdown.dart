@@ -7,7 +7,7 @@ class ShutdownCommand implements ICommand {
   @override
   String commandName = 'stop';
   @override
-  List<String> aliases = [];
+  List<String> aliases = ['shutdown'];
 
   @override
   void onExecute(Message message, List<String> args, Nyxx bot) async {
@@ -18,6 +18,7 @@ class ShutdownCommand implements ICommand {
           status: UserStatus.offline,
         ),
       );
+      lavalinkProcess.kill();
       await bot.dispose();
     } else {
       await message
