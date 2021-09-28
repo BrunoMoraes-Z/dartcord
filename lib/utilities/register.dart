@@ -1,5 +1,4 @@
 import 'package:bot/contants.dart';
-import 'package:bot/utilities/lavalink/player.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_lavalink/lavalink.dart';
 
@@ -18,17 +17,39 @@ void registerCommands(Nyxx bot) {
       if (command.isEmpty) {
         command = commands.where((element) => element.aliases.contains(cmd));
       }
+      var args =
+          event.message.content.replaceAll(cmdPrefix, '').trim().split(' ');
+      args = args.toString() == '[]' ? [] : args;
 
       if (command.isEmpty) {
         await event.message
             .reply(content: 'Nenhum comando encontrado com o nome **$cmd**.')
             .deleteAfter();
       } else {
-        command.first.onExecute(
-          event.message,
-          event.message.content.replaceAll(cmdPrefix, '').trim().split(' '),
-          bot,
-        );
+        var member = await event.message.getAuthorMember();
+        if (command.first.roles.isNotEmpty) {
+          if (member.containsRole(command.first.roles) ||
+              config.owner == member.id) {
+            await command.first.onExecute(
+              event.message,
+              args,
+              bot,
+            );
+          } else {
+            await event.message
+                .reply(
+                  content:
+                      'Você não possui permissão para utilizar este comando.',
+                )
+                .deleteAfter();
+          }
+        } else {
+          await command.first.onExecute(
+            event.message,
+            args,
+            bot,
+          );
+        }
       }
     }
   });
@@ -40,28 +61,45 @@ Future<void> registerCluster(NodeOptions options) async {
     await cluster!.addNode(options);
   }
 
-  player = Player();
-
   if (cluster != null) {
+    // On Track Start
     cluster!.onTrackStart.listen((event) {
-      var np = event.node.players.values.first.nowPlaying;
-      if (np != null) {
+      if (players.isNotEmpty) {
         bot.setPresence(
           PresenceBuilder.of(
             status: UserStatus.online,
-            activity: ActivityBuilder.listening(
-              np.track.info!.title,
+            activity: ActivityBuilder.game(
+              'In ${players.length} Servers',
             ),
           ),
         );
       }
     });
+
+    // On Track End
     cluster!.onTrackEnd.listen((event) {
-      bot.setPresence(
-        PresenceBuilder.of(
-          status: UserStatus.online,
-        ),
-      );
+      var guild = event.guildId;
+      var player = players[guild]!;
+
+      if (player.queue().isEmpty) {
+        player.disconnect();
+        players.remove(guild);
+      } else {
+        var song = player.queue().first;
+        player.text.sendMessage(
+          MessageBuilder.content(
+            '🎶 Tocando **${song.track.info!.title}**.',
+          ),
+        );
+      }
+
+      if (players.isEmpty) {
+        bot.setPresence(
+          PresenceBuilder.of(
+            status: UserStatus.online,
+          ),
+        );
+      }
     });
   }
 }

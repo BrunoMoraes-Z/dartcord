@@ -38,9 +38,14 @@ class LavaLink {
       ),
     );
 
-    lavalinkProcess.stdout.transform(utf8.decoder).listen((data) {
-      //print(data);
+    lavalinkProcess.stdout.transform(latin1.decoder).listen((data) {
       if (!completer.isCompleted) {
+        data.split('\r\n').forEach((element) {
+          element = element.trim();
+          if (element.isNotEmpty) {
+            print(element);
+          }
+        });
         if (data.contains(
             'You can safely ignore the big red warning about illegal reflection')) {
           completer.complete(

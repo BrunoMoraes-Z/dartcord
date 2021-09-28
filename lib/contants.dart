@@ -8,4 +8,4 @@ late Config config;
 late String prefix;
 late Nyxx bot;
 late Process lavalinkProcess;
-late Player player;
+final Map<Snowflake, Player> players = {};
