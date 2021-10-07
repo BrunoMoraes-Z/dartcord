@@ -2,9 +2,9 @@ import 'package:bot/contants.dart';
 import 'package:bot/interfaces/icommand.dart';
 import 'package:nyxx/nyxx.dart';
 
-class PauseCommand implements ICommand {
+class ResumeCommand implements ICommand {
   @override
-  String commandName = 'pause';
+  String commandName = 'resume';
   @override
   List<String> roles = ['DJ'];
   @override
@@ -18,17 +18,16 @@ class PauseCommand implements ICommand {
         var player = players[message.getGuild()];
         var ch = await member.getVoiceChannel;
         if (ch.name == player!.voice.name) {
-          if (player.isPlaying) {
-            player.pause();
+          if (!player.isPlaying) {
+            player.resume();
             await message.reply(
               content:
-                  'Pausada a música **${player.song.track.info!.title}**, `${prefix}resume`.',
+                  'Voltei a tocar a música **${player.song.track.info!.title}**.',
             );
           } else {
             await message
                 .reply(
-                  content:
-                      'Não estou tocando nenhuma música no momento `${prefix}resume`.',
+                  content: 'Estou tocando música no momento `${prefix}pause`.',
                 )
                 .deleteAfter();
           }

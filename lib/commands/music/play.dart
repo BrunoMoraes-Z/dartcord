@@ -9,9 +9,7 @@ class PlayCommand implements ICommand {
   @override
   String commandName = 'play';
   @override
-  List<String> roles = [
-    'DJ',
-  ];
+  List<String> roles = ['DJ'];
   @override
   List<String> aliases = ['p'];
 

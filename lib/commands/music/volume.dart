@@ -2,9 +2,9 @@ import 'package:bot/contants.dart';
 import 'package:bot/interfaces/icommand.dart';
 import 'package:nyxx/nyxx.dart';
 
-class PauseCommand implements ICommand {
+class VolumeCommand implements ICommand {
   @override
-  String commandName = 'pause';
+  String commandName = 'volume';
   @override
   List<String> roles = ['DJ'];
   @override
@@ -18,19 +18,42 @@ class PauseCommand implements ICommand {
         var player = players[message.getGuild()];
         var ch = await member.getVoiceChannel;
         if (ch.name == player!.voice.name) {
-          if (player.isPlaying) {
-            player.pause();
-            await message.reply(
-              content:
-                  'Pausada a música **${player.song.track.info!.title}**, `${prefix}resume`.',
+          if (args.isEmpty) {
+            await message.channel.sendMessage(
+              MessageBuilder.content(
+                '🔊 Volume `${player.volume}/1000`.',
+              ),
             );
-          } else {
+            return;
+          }
+
+          int volume;
+          try {
+            volume = int.parse(args[0]);
+          } catch (e) {
             await message
                 .reply(
-                  content:
-                      'Não estou tocando nenhuma música no momento `${prefix}resume`.',
+                  content: 'Você precisa informar um número inteiro.',
                 )
                 .deleteAfter();
+            return;
+          }
+
+          if (volume < 0 || volume > 1000) {
+            await message
+                .reply(
+                  content: 'Você precisa informar um número entre `1 - 1000`.',
+                )
+                .deleteAfter();
+            return;
+          } else {
+            player.setVolume(volume);
+            await message.channel.sendMessage(
+              MessageBuilder.content(
+                '🔊 Volume `${player.volume}/1000`.',
+              ),
+            );
+            return;
           }
         } else {
           await message
